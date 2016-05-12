@@ -1,23 +1,32 @@
-galaxy:
-    build: galaxy
+version: '2'
+services:
+  galaxy:
+      #build: galaxy
+      image: bgruening/galaxy-stable
+      ports:
+          - "8080:80"
+          - "8021:21"
+      environment:
+          NONUSE: nodejs,proftp,reports
+          GALAXY_LOGGING: full
+  apollo:
+    #image: erasche/webapollo2:cpt
+    image: gmod/apollo:stable
+    links:
+     - db
     ports:
-        - 80
+     - "8080:8080"
     environment:
-        NONUSE: nodejs,proftp,reports
-        GALAXY_LOGGING: full
-webapollo2:
-  image: erasche/webapollo2:cpt
-  links:
-   - db
-  ports:
-   - 8080
-  environment:
-    WEBAPOLLO_DB_USERNAME: postgres
-    WEBAPOLLO_DB_PASSWORD: password
-    WEBAPOLLO_DB_DRIVER: "org.postgresql.Driver"
-    WEBAPOLLO_DB_DIALECT: "org.hibernate.dialect.PostgresPlusDialect"
-    WEBAPOLLO_DB_URI: "jdbc:postgresql://$${DB_1_PORT_5432_TCP_ADDR}/postgres"
-db:
-  image: postgres
-  environment:
-    POSTGRES_PASSWORD: password
+      WEBAPOLLO_DB_USERNAME: postgres
+      WEBAPOLLO_DB_PASSWORD: password
+      WEBAPOLLO_DB_DRIVER: "org.postgresql.Driver"
+      WEBAPOLLO_DB_DIALECT: "org.hibernate.dialect.PostgresPlusDialect"
+      WEBAPOLLO_DB_URI: "jdbc:postgresql://db/postgres"
+    volumes:
+      - "./data:/data"
+      - "./apollo:/apollo"
+      - "./jbrowse:/jbrowse"
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: password
